@@ -6,6 +6,14 @@ function App() {
 
   const formSubmitHandler = (e) => {
     e.preventDefault();
+    try {
+      window.localStorage.setItem(
+        "user",
+        JSON.stringify({ name, favorites: [] })
+      );
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div>
