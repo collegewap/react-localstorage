@@ -4,6 +4,7 @@ import {
   Checkbox,
   FormGroup,
   InputGroup,
+  Tag,
 } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
 
@@ -80,6 +81,15 @@ function App() {
     }
   };
 
+  const saveFavorites = () => {
+    try {
+      window.localStorage.setItem("user", JSON.stringify(userData));
+      setEditMode(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       {userData === null && (
@@ -98,29 +108,64 @@ function App() {
           </form>
         </Card>
       )}
-      {userData && editMode && (
-        <Card elevation="1">
-          <p>
-            Welcome <strong>{userData.name}</strong>, choose your favorite
-            fruits:
-          </p>
-          {fruits.map((fruit) => {
-            return (
-              <Checkbox
-                key={fruit}
-                label={fruit}
-                inline={true}
-                className="space"
-                checked={userData.favorites.indexOf(fruit) !== -1}
-                onChange={(e) => {
-                  onFruitChecked(e, fruit);
-                }}
-              />
-            );
-          })}
-          <Button intent="primary" text="Save" fill type="submit" />
-        </Card>
-      )}
+      {userData &&
+        (editMode ? (
+          <Card elevation="1">
+            <p>
+              Welcome <strong>{userData.name}</strong>, choose your favorite
+              fruits:
+            </p>
+            {fruits.map((fruit) => {
+              return (
+                <Checkbox
+                  key={fruit}
+                  label={fruit}
+                  inline={true}
+                  className="space"
+                  checked={userData.favorites.indexOf(fruit) !== -1}
+                  onChange={(e) => {
+                    onFruitChecked(e, fruit);
+                  }}
+                />
+              );
+            })}
+            <Button
+              intent="primary"
+              text="Save"
+              fill
+              type="submit"
+              onClick={saveFavorites}
+            />
+          </Card>
+        ) : (
+          <Card elevation="1">
+            <p>
+              Welcome <strong>{userData.name}</strong>, your favorite fruits
+              are:
+            </p>
+            {userData.favorites.map((fruit) => {
+              return (
+                <Tag
+                  key={fruit}
+                  round
+                  minimal
+                  large
+                  intent="success"
+                  className="space"
+                >
+                  {fruit}
+                </Tag>
+              );
+            })}
+            <Button
+              intent="primary"
+              text="Change"
+              fill
+              type="submit"
+              onClick={() => setEditMode(true)}
+            />
+          </Card>
+        ))}
     </div>
   );
 }
