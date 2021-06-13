@@ -6,7 +6,8 @@ import {
   InputGroup,
   Tag,
 } from "@blueprintjs/core";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useLocalStorage from "./hooks/useLocalStorage";
 
 const fruits = [
   "Apple",
@@ -20,28 +21,12 @@ const fruits = [
 
 function App() {
   const [name, setName] = useState("");
-  const [userData, setUserData] = useState();
-  const [editMode, setEditMode] = useState(false);
-
-  useEffect(() => {
-    // Fetch the user data from the localStorage and set it to the local stage userData
-    try {
-      const user = window.localStorage.getItem("user");
-
-      if (!user) {
-        setUserData(null);
-      } else {
-        const parsedData = JSON.parse(user);
-        setUserData(parsedData);
-        if (parsedData.favorites.length === 0) {
-          setEditMode(true);
-        }
-      }
-    } catch (error) {
-      console.log(error);
-      setUserData(null);
-    }
-  }, []);
+  const [userData, setUserData] = useLocalStorage("user", null);
+  // Set edit mode to true whenever the userData is not present or
+  // selected favorites are 0
+  const [editMode, setEditMode] = useState(
+    userData === null || userData?.favorites?.length === 0
+  );
 
   const onFruitChecked = (e, fruit) => {
     // Check if the fruit exists in the current list of favorites
@@ -72,19 +57,6 @@ function App() {
     try {
       setUserData({ name, favorites: [] });
       setEditMode(true);
-      window.localStorage.setItem(
-        "user",
-        JSON.stringify({ name, favorites: [] })
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const saveFavorites = () => {
-    try {
-      window.localStorage.setItem("user", JSON.stringify(userData));
-      setEditMode(false);
     } catch (error) {
       console.log(error);
     }
@@ -131,10 +103,10 @@ function App() {
             })}
             <Button
               intent="primary"
-              text="Save"
+              text="Done"
               fill
               type="submit"
-              onClick={saveFavorites}
+              onClick={() => setEditMode(false)}
             />
           </Card>
         ) : (
